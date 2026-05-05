@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adjektive B1 PRO</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:#f5f7fb;color:#222}
+header{background:linear-gradient(135deg,#58cc02,#1cb0f6);color:white;padding:44px 20px;text-align:center}
+header h1{font-size:2.5rem;margin-bottom:8px}.container{max-width:1180px;margin:auto;padding:25px;display:grid;grid-template-columns:310px 1fr;gap:24px}
+.card,.login{background:white;border-radius:24px;padding:24px;box-shadow:0 10px 25px rgba(0,0,0,.08)}.login{max-width:540px;margin:60px auto;text-align:center}
+input,select{width:100%;padding:15px;border-radius:14px;border:2px solid #e5e7eb;font-size:1.05rem;margin-top:12px}
+button{padding:14px 20px;margin-top:12px;border:none;border-radius:14px;font-weight:900;cursor:pointer}.green{background:#58cc02;color:white;box-shadow:0 5px 0 #46a302}.blue{background:#1cb0f6;color:white;box-shadow:0 5px 0 #1689c7}.red{background:#dc2626;color:white;box-shadow:0 6px 0 #991b1b;text-transform:uppercase;font-size:17px}
+.topicBtn{width:100%;background:#eef2ff;text-align:left;color:#111;box-shadow:none}.topicBtn.active,.topicBtn:hover{background:#58cc02;color:white}
+.modeBtn{background:#f3f4f6;color:#111;box-shadow:none}.modeBtn.active{background:#1cb0f6;color:white}
+.question{font-size:2rem;font-weight:900;text-align:center;margin:28px 0;line-height:1.35}.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.options button{background:#f3f4f6;color:#111;box-shadow:none}.options button:hover{background:#d1fae5}
+.feedback{margin-top:15px;padding:14px;border-radius:14px;font-weight:900;display:none}.correct{background:#dcfce7;color:#166534;display:block}.wrong{background:#fee2e2;color:#991b1b;display:block}.neutral{background:#eef2ff;color:#3730a3;display:block}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}.stat{background:#f3f4f6;padding:10px 14px;border-radius:999px;font-weight:900}
+.progress{height:16px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin-top:12px}.bar{height:100%;background:#58cc02;width:0%;transition:.3s}.bank{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}.chip{background:#e5e7eb;color:#6b7280;border-radius:999px;padding:8px 12px;font-weight:900;letter-spacing:1px;animation:pop .25s ease}@keyframes pop{from{transform:scale(.75);opacity:0}to{transform:scale(1);opacity:1}}
+.level{background:#eef2ff;color:#3730a3;padding:12px 14px;border-radius:16px;font-weight:900;margin-bottom:12px;display:inline-block}.small{font-size:.9rem;color:#666;margin-top:10px;line-height:1.4}
+.done{background:#dcfce7;color:#166534;border-radius:18px;padding:20px;font-size:1.35rem;font-weight:900;text-align:center}
+@media(max-width:850px){.container{grid-template-columns:1fr}header h1{font-size:2rem}.question{font-size:1.45rem}}
+</style>
+</head>
+<body>
+<header><h1>Adjektive B1 PRO</h1><p>Wortschatz, Sätze und Komparativ – mit persönlichem Fortschritt</p></header>
+
+<section id="loginBox" class="login">
+<h2>👩‍🎓 Willkommen!</h2><p>Schreibe deinen Namen, um deinen Fortschritt zu speichern.</p>
+<input id="studentName" placeholder="Dein Name"><button class="green" onclick="login()">Einloggen</button>
+</section>
+
+<div id="app" class="container" style="display:none">
+<aside class="card">
+<h2>Hallo, <span id="currentUser"></span> 👋</h2>
+<div class="stats"><div class="stat">💎 XP: <span id="xp">0</span></div><div class="stat">❤️ <span id="life">5</span></div><div class="stat">✅ <span id="correctCount">0</span></div></div>
+<div class="progress"><div class="bar" id="progressBar"></div></div><p class="small" id="counter"></p>
+<h3 style="margin-top:18px">Themen</h3><div id="topicButtons"></div>
+<h3 style="margin-top:18px">Modus</h3>
+<button class="modeBtn active" id="modeVocab" onclick="setMode('vocab')">📚 Wortschatz</button>
+<button class="modeBtn" id="modeSentence" onclick="setMode('sentence')">✍️ Satztrainer</button>
+<button class="modeBtn" id="modeComp" onclick="setMode('comp')">📈 Komparativ</button>
+<button class="red" onclick="resetActivity()">🔄 Neu starten</button>
+<button class="blue" onclick="logout()">Abmelden</button>
+</aside>
+
+<main>
+<section class="card">
+<div class="level" id="levelBox">🔓 Level 1 aktiv</div>
+<h2 id="title">Übung</h2>
+<p id="instruction">Wähle die richtige Übersetzung.</p>
+<div class="question" id="question"></div>
+<div class="options" id="options"></div>
+<input id="answer" style="display:none" placeholder="Antwort schreiben...">
+<button class="green" id="checkBtn" style="display:none" onclick="checkWritten()">Prüfen</button>
+<div class="feedback" id="feedback"></div>
+<button class="green" onclick="nextTask()">Nächste Aufgabe</button>
+
+<div style="margin-top:26px;border-top:2px solid #e5e7eb;padding-top:16px">
+<h2>🔒 Noch zu lernen</h2>
+<div class="bank" id="bank"></div>
+</div>
+</section>
+</main>
+</div>
+
+<script>
+const THEMES = {"Charakter": [["freundlich", "amable"], ["unfreundlich", "poco amable"], ["nett", "simpático"], ["sympathisch", "agradable"], ["unsympathisch", "antipático"], ["ehrlich", "honesto"], ["unehrlich", "deshonesto"], ["ruhig", "tranquilo"], ["laut", "ruidoso"], ["lustig", "divertido"], ["ernst", "serio"], ["kreativ", "creativo"], ["fantasievoll", "imaginativo"], ["hilfsbereit", "servicial"], ["zuverlässig", "confiable"], ["pünktlich", "puntual"], ["unpünktlich", "impuntual"], ["ordentlich", "ordenado"], ["unordentlich", "desordenado"], ["verständnisvoll", "comprensivo"]], "Aussehen und Kleidung": [["groß", "alto"], ["klein", "pequeño / bajo"], ["jung", "joven"], ["alt", "viejo / mayor"], ["blond", "rubio"], ["dunkel", "oscuro"], ["lockig", "crespo / rizado"], ["kurz", "corto"], ["lang", "largo"], ["schön", "bonito"], ["hübsch", "guapo / bonito"], ["modern", "moderno"], ["altmodisch", "anticuado"], ["elegant", "elegante"], ["lässig", "informal"], ["bequem", "cómodo"], ["eng", "ajustado"], ["kariert", "a cuadros"], ["gestreift", "a rayas"], ["bunt", "colorido"]], "Gefühle": [["glücklich", "feliz"], ["traurig", "triste"], ["nervös", "nervioso"], ["entspannt", "relajado"], ["zufrieden", "satisfecho"], ["unzufrieden", "insatisfecho"], ["müde", "cansado"], ["wach", "despierto"], ["aufgeregt", "alterado / emocionado"], ["wütend", "enojado"], ["ängstlich", "temeroso"], ["mutig", "valiente"], ["stolz", "orgulloso"], ["verliebt", "enamorado"], ["überrascht", "sorprendido"], ["gelangweilt", "aburrido"], ["interessiert", "interesado"], ["motiviert", "motivado"], ["gestresst", "estresado"], ["ruhig", "tranquilo"]], "Schule und Lernen": [["leicht", "fácil"], ["schwer", "difícil"], ["einfach", "simple"], ["kompliziert", "complicado"], ["wichtig", "importante"], ["unwichtig", "poco importante"], ["interessant", "interesante"], ["langweilig", "aburrido"], ["nützlich", "útil"], ["unnötig", "innecesario"], ["praktisch", "práctico"], ["theoretisch", "teórico"], ["klar", "claro"], ["unklar", "poco claro"], ["richtig", "correcto"], ["falsch", "falso"], ["mündlich", "oral"], ["schriftlich", "escrito"], ["regelmäßig", "regular"], ["selbstständig", "independiente"]], "Alltag und Umwelt": [["gesund", "sano"], ["ungesund", "poco sano"], ["sauber", "limpio"], ["schmutzig", "sucio"], ["gefährlich", "peligroso"], ["sicher", "seguro"], ["teuer", "caro"], ["billig", "barato"], ["nah", "cerca"], ["weit", "lejos"], ["schnell", "rápido"], ["langsam", "lento"], ["voll", "lleno"], ["leer", "vacío"], ["neu", "nuevo"], ["alt", "viejo"], ["umweltfreundlich", "ecológico"], ["schädlich", "dañino"], ["normal", "normal"], ["ungewöhnlich", "poco habitual"]], "Meinung und Diskussion": [["positiv", "positivo"], ["negativ", "negativo"], ["wichtig", "importante"], ["problematisch", "problemático"], ["möglich", "posible"], ["unmöglich", "imposible"], ["notwendig", "necesario"], ["sinnvoll", "con sentido"], ["unsinnig", "sin sentido"], ["gerecht", "justo"], ["ungerecht", "injusto"], ["freiwillig", "voluntario"], ["verpflichtend", "obligatorio"], ["typisch", "típico"], ["persönlich", "personal"], ["sozial", "social"], ["öffentlich", "público"], ["privat", "privado"], ["gemeinsam", "en conjunto"], ["verschieden", "diferente"]]};
+const SENTENCES = {"Charakter": [["Meine beste Freundin ist sehr ____ und hilft mir immer.", "hilfsbereit", "servicial"], ["Ein guter Freund sollte ____ sein.", "ehrlich", "honesto"], ["Mein Bruder ist oft ____, aber manchmal auch ernst.", "lustig", "divertido"], ["Die Lehrerin ist ____, denn sie erklärt alles ruhig.", "verständnisvoll", "comprensiva"], ["Ein ____ Schüler kommt nie zu spät.", "pünktlicher", "puntual"]], "Aussehen und Kleidung": [["Sie trägt eine ____ Jacke.", "moderne", "moderna"], ["Der Junge hat ____ Haare.", "lockige", "rizados"], ["Ich mag ____ Kleidung, weil sie angenehm ist.", "bequeme", "cómoda"], ["Der Mann trägt einen ____ Anzug.", "eleganten", "elegante"], ["Das Mädchen hat ein ____ Kleid.", "buntes", "colorido"]], "Gefühle": [["Vor der Prüfung bin ich oft ____.", "nervös", "nervioso"], ["Nach dem Sport bin ich müde, aber ____.", "zufrieden", "satisfecho"], ["Sie ist ____, weil sie eine gute Note bekommen hat.", "glücklich", "feliz"], ["Ich bin ____, weil ich keine Freizeit habe.", "gestresst", "estresado"], ["Er ist ____, weil er allein reisen muss.", "ängstlich", "temeroso"]], "Schule und Lernen": [["Deutsch ist manchmal ____, aber interessant.", "schwer", "difícil"], ["Diese Übung ist sehr ____ für die Prüfung.", "nützlich", "útil"], ["Die Erklärung war ____. Jetzt verstehe ich alles.", "klar", "clara"], ["Wir müssen ____ lernen.", "regelmäßig", "regularmente"], ["Eine ____ Antwort bekommt Punkte.", "richtige", "correcta"]], "Alltag und Umwelt": [["Recycling ist ____.", "umweltfreundlich", "ecológico"], ["Fast Food ist oft ____.", "ungesund", "poco sano"], ["Der Weg zur Schule ist nicht weit, sondern ____.", "nah", "cerca"], ["Diese Straße ist nachts nicht ____.", "sicher", "segura"], ["Schmutziges Wasser ist für Menschen ____.", "gefährlich", "peligroso"]], "Meinung und Diskussion": [["Meiner Meinung nach ist das ein ____ Argument.", "wichtiges", "importante"], ["Diese Regel finde ich ____.", "gerecht", "justa"], ["Das Problem ist sehr ____.", "problematisch", "problemático"], ["Eine Lösung ist ____.", "möglich", "posible"], ["Gemeinsame Projekte sind oft ____.", "sinnvoll", "con sentido"]]};
+const COMPARATIVES = [["groß", "größer", "más grande"], ["klein", "kleiner", "más pequeño"], ["alt", "älter", "más viejo / mayor"], ["jung", "jünger", "más joven"], ["gut", "besser", "mejor"], ["viel", "mehr", "más"], ["gern", "lieber", "con más gusto"], ["nah", "näher", "más cerca"], ["teuer", "teurer", "más caro"], ["billig", "billiger", "más barato"], ["leicht", "leichter", "más fácil"], ["schwer", "schwerer", "más difícil"], ["schnell", "schneller", "más rápido"], ["langsam", "langsamer", "más lento"], ["wichtig", "wichtiger", "más importante"]];
+
+let user="",topic=Object.keys(THEMES)[0],mode="vocab",current=0,currentAnswer="",answered=false;
+let solved={},xp=0,life=5,correctCount=0;
+
+function cleanName(n){return n.trim().toLowerCase().replace(/\s+/g,"_")}
+function key(k){return "adj_b1_pro_"+cleanName(user)+"_"+k}
+function login(){let n=document.getElementById("studentName").value.trim();if(n===""){alert("Bitte schreibe deinen Namen.");return}user=n;localStorage.setItem("adj_b1_current_user",user);loadData();showApp()}
+function logout(){localStorage.removeItem("adj_b1_current_user");location.reload()}
+function loadData(){solved=JSON.parse(localStorage.getItem(key("solved"))||"{}");xp=Number(localStorage.getItem(key("xp"))||0);life=Number(localStorage.getItem(key("life"))||5);correctCount=Number(localStorage.getItem(key("correct"))||0)}
+function saveData(){localStorage.setItem(key("solved"),JSON.stringify(solved));localStorage.setItem(key("xp"),xp);localStorage.setItem(key("life"),life);localStorage.setItem(key("correct"),correctCount)}
+function listKey(){return mode+"_"+topic}
+function getList(){if(mode==="vocab")return THEMES[topic];if(mode==="sentence")return SENTENCES[topic];return COMPARATIVES}
+function ensureSolved(){if(!solved[listKey()])solved[listKey()]=[]}
+function pending(){ensureSolved();let list=getList();let p=[];for(let i=0;i<list.length;i++){if(!solved[listKey()].includes(i))p.push(i)}return p}
+function shuffle(a){return [...a].sort(()=>Math.random()-0.5)}
+function normalize(t){return t.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
+function showApp(){document.getElementById("loginBox").style.display="none";document.getElementById("app").style.display="grid";document.getElementById("currentUser").innerText=user;renderTopics();updateStats();loadTask()}
+function renderTopics(){let box=document.getElementById("topicButtons");box.innerHTML="";Object.keys(THEMES).forEach(t=>{let b=document.createElement("button");b.className="topicBtn "+(t===topic?"active":"");b.innerText=t+" ("+THEMES[t].length+")";b.onclick=()=>{topic=t;renderTopics();loadTask()};box.appendChild(b)})}
+function setMode(m){mode=m;document.querySelectorAll(".modeBtn").forEach(b=>b.classList.remove("active"));document.getElementById(m==="vocab"?"modeVocab":m==="sentence"?"modeSentence":"modeComp").classList.add("active");loadTask()}
+function showBank(){let bank=document.getElementById("bank");bank.innerHTML="";pending().forEach(()=>bank.innerHTML+=`<span class="chip">🔒 ?????</span>`);updateCounter()}
+function updateStats(){document.getElementById("xp").innerText=xp;document.getElementById("life").innerText=life;document.getElementById("correctCount").innerText=correctCount;updateCounter()}
+function updateCounter(){let total=getList().length,done=total-pending().length;document.getElementById("counter").innerText=pending().length+" Aufgaben übrig | "+done+" gelöst";document.getElementById("progressBar").style.width=Math.round((done/total)*100)+"%";let pct=Math.round((done/total)*100);let lvl="🔓 Level 1 aktiv";if(pct>=25&&pct<50)lvl="⭐ Level 2";else if(pct>=50&&pct<75)lvl="🔥 Level 3";else if(pct>=75&&pct<100)lvl="🏆 Level 4";else if(pct===100)lvl="🎉 Level abgeschlossen";document.getElementById("levelBox").innerText=lvl}
+function loadTask(){answered=false;let p=pending();document.getElementById("feedback").className="feedback";document.getElementById("feedback").innerText="";document.getElementById("answer").style.display="none";document.getElementById("checkBtn").style.display="none";document.getElementById("options").innerHTML="";
+if(p.length===0){document.getElementById("title").innerText=mode==="vocab"?topic:mode==="sentence"?topic+" – Satztrainer":"Komparativ";document.getElementById("instruction").innerText="Du hast diesen Teil geschafft.";document.getElementById("question").innerHTML='<div class="done">🎉 Geschafft! Alle Aufgaben sind gelöst.</div>';showBank();return}
+current=p[Math.floor(Math.random()*p.length)];
+if(mode==="vocab")loadVocab();else if(mode==="sentence")loadSentence();else loadComp();
+showBank()}
+function loadVocab(){let list=getList(),item=list[current];let dir=Math.random()>0.5?"de-es":"es-de",write=Math.random()>0.35;let q=dir==="de-es"?item[0]:item[1];currentAnswer=dir==="de-es"?item[1]:item[0];document.getElementById("title").innerText=topic+" – Wortschatz";document.getElementById("question").innerText=q;if(write){document.getElementById("instruction").innerText=dir==="de-es"?"Schreibe die spanische Übersetzung.":"Schreibe die deutsche Übersetzung.";document.getElementById("answer").style.display="block";document.getElementById("answer").value="";document.getElementById("checkBtn").style.display="inline-block"}else{document.getElementById("instruction").innerText=dir==="de-es"?"Wähle die spanische Übersetzung.":"Wähle die deutsche Übersetzung.";let pool=Object.values(THEMES).flat().map(w=>dir==="de-es"?w[1]:w[0]).filter(x=>x!==currentAnswer);let opts=shuffle(pool).slice(0,3);opts.push(currentAnswer);renderOptions(opts)}}
+function loadSentence(){let ex=getList()[current];currentAnswer=ex[1];document.getElementById("title").innerText=topic+" – Satztrainer";document.getElementById("instruction").innerText="Ergänze die Lücke. Tipp: "+ex[2];document.getElementById("question").innerText=ex[0];document.getElementById("answer").style.display="block";document.getElementById("answer").value="";document.getElementById("checkBtn").style.display="inline-block"}
+function loadComp(){let item=getList()[current];let ask=Math.random()>0.5?"base":"comp";currentAnswer=ask==="base"?item[1]:item[0];document.getElementById("title").innerText="Komparativ";document.getElementById("instruction").innerText=ask==="base"?"Schreibe den Komparativ.":"Schreibe die Grundform.";document.getElementById("question").innerText=ask==="base"?item[0]:item[1];document.getElementById("answer").style.display="block";document.getElementById("answer").value="";document.getElementById("checkBtn").style.display="inline-block"}
+function renderOptions(opts){opts=shuffle(opts);let html="";opts.forEach(o=>html+=`<button onclick="checkAnswer('${o.replace(/'/g,"\\'")}')">${o}</button>`);document.getElementById("options").innerHTML=html}
+function markCorrect(){ensureSolved();if(!solved[listKey()].includes(current))solved[listKey()].push(current);xp+=10;correctCount++;saveData();updateStats();showBank()}
+function checkAnswer(sel){if(answered)return;answered=true;let f=document.getElementById("feedback");if(sel===currentAnswer){markCorrect();f.innerText="✅ Richtig! +10 XP";f.className="feedback correct"}else{life--;saveData();updateStats();f.innerText="❌ Falsch. Richtige Antwort: "+currentAnswer;f.className="feedback wrong"}}
+function checkWritten(){if(answered)return;answered=true;let u=document.getElementById("answer").value,f=document.getElementById("feedback");if(normalize(u)===normalize(currentAnswer)){markCorrect();f.innerText="✅ Richtig! +10 XP";f.className="feedback correct"}else{life--;saveData();updateStats();f.innerText="❌ Falsch. Richtige Antwort: "+currentAnswer;f.className="feedback wrong"}}
+function nextTask(){loadTask()}
+function resetActivity(){if(confirm("Möchtest du diesen Modus neu starten?")){ensureSolved();solved[listKey()]=[];xp=0;life=5;correctCount=0;saveData();updateStats();loadTask()}}
+window.onload=function(){let saved=localStorage.getItem("adj_b1_current_user");if(saved){user=saved;loadData();showApp()}}
+</script>
+</body></html>
