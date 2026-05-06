@@ -106,6 +106,93 @@ footer{text-align:center;padding:30px;color:#666}
 <footer>
 <p>© 2026 Deutschkurs 9 – Kursmaterial</p>
 </footer>
+<style>
+.chatbox{
+position:fixed;
+right:20px;
+bottom:20px;
+width:320px;
+background:white;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.25);
+overflow:hidden;
+font-family:Arial;
+z-index:999;
+}
+.chat-header{
+background:#58cc02;
+color:white;
+padding:14px;
+font-weight:bold;
+}
+.chat-body{
+padding:14px;
+max-height:300px;
+overflow:auto;
+}
+.msg{
+padding:10px;
+margin:8px 0;
+border-radius:12px;
+}
+.bot{
+background:#eef2ff;
+}
+.user{
+background:#dcfce7;
+text-align:right;
+}
+.chat-options button{
+width:100%;
+margin:5px 0;
+padding:10px;
+border:none;
+border-radius:12px;
+background:#1cb0f6;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+</style>
 
+<div class="chatbox">
+<div class="chat-header">💬 Deutschkurs 9 Hilfe</div>
+
+<div class="chat-body" id="chatBody">
+<div class="msg bot">Hallo! Wie kann ich dir helfen?</div>
+</div>
+
+<div class="chat-options">
+<button onclick="reply('material')">📚 Wo finde ich das Material?</button>
+<button onclick="reply('login')">👩‍🎓 Wie melde ich mich an?</button>
+<button onclick="reply('uebungen')">✍️ Welche Übungen soll ich machen?</button>
+<button onclick="reply('kontakt')">📧 Kontakt</button>
+</div>
+</div>
+
+<script>
+function reply(type){
+let chat=document.getElementById("chatBody");
+
+let questions={
+material:"Wo finde ich das Material?",
+login:"Wie melde ich mich an?",
+uebungen:"Welche Übungen soll ich machen?",
+kontakt:"Kontakt"
+};
+
+let answers={
+material:"Du findest das Material auf der Startseite. Wähle einfach die passende Einheit, zum Beispiel Zusammenleben oder Lernen mit Kopf, Herz und Hand.",
+login:"Schreibe deinen Namen in das Login-Feld. Dein Fortschritt wird automatisch in diesem Browser gespeichert.",
+uebungen:"Beginne mit dem Wortschatz. Danach kannst du Satztrainer, Adjektive, Verben oder DSD-I-Übungen machen.",
+kontakt:"Bei Fragen kannst du eine E-Mail an deinen Lehrer schreiben."
+};
+
+chat.innerHTML += '<div class="msg user">'+questions[type]+'</div>';
+chat.innerHTML += '<div class="msg bot">'+answers[type]+'</div>';
+
+chat.scrollTop=chat.scrollHeight;
+}
+</script>
 </body>
 </html>
