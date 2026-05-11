@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adjektivdeklination – Nominativ, Akkusativ und Dativ</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --card: #ffffff;
+      --text: #263238;
+      --muted: #607d8b;
+      --primary: #8a5a2b;
+      --primary-dark: #6f451f;
+      --ok: #2e7d32;
+      --bad: #c62828;
+      --soft-ok: #e8f5e9;
+      --soft-bad: #ffebee;
+      --border: #ddd2c4;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #f6f4ef, #eadfce);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 32px 18px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+    }
+
+    header p {
+      margin: 0;
+      font-size: 1.05rem;
+      opacity: 0.95;
+    }
+
+    main {
+      max-width: 1050px;
+      margin: 24px auto;
+      padding: 0 16px 40px;
+    }
+
+    .intro, .score-box, .section, .actions {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.07);
+    }
+
+    .intro strong {
+      color: var(--primary-dark);
+    }
+
+    .score-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .score {
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: var(--primary-dark);
+    }
+
+    .progress {
+      flex: 1 1 260px;
+      height: 14px;
+      background: #eee5d9;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.3s;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--primary-dark);
+      border-bottom: 2px solid #eadfce;
+      padding-bottom: 8px;
+    }
+
+    .exercise {
+      padding: 13px 12px;
+      border-bottom: 1px solid #eee;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+
+    .exercise:last-child {
+      border-bottom: none;
+    }
+
+    .number {
+      font-weight: bold;
+      color: var(--primary-dark);
+    }
+
+    .sentence {
+      font-size: 1.02rem;
+    }
+
+    input.answer {
+      width: 72px;
+      padding: 7px 8px;
+      border: 2px solid #cfc4b6;
+      border-radius: 9px;
+      font-size: 1rem;
+      text-align: center;
+      margin: 0 2px;
+      transition: 0.2s;
+    }
+
+    input.answer:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(138, 90, 43, 0.15);
+    }
+
+    input.correct {
+      border-color: var(--ok);
+      background: var(--soft-ok);
+      color: var(--ok);
+      font-weight: bold;
+    }
+
+    input.incorrect {
+      border-color: var(--bad);
+      background: var(--soft-bad);
+      color: var(--bad);
+      font-weight: bold;
+    }
+
+    .feedback {
+      display: inline-block;
+      min-width: 160px;
+      margin-left: 8px;
+      font-size: 0.93rem;
+      font-weight: bold;
+    }
+
+    .feedback.ok {
+      color: var(--ok);
+    }
+
+    .feedback.bad {
+      color: var(--bad);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-top: 3px;
+    }
+
+    button {
+      border: none;
+      background: var(--primary);
+      color: white;
+      padding: 11px 16px;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 5px 5px 5px 0;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    button.secondary {
+      background: #607d8b;
+    }
+
+    button.secondary:hover {
+      background: #455a64;
+    }
+
+    .actions {
+      text-align: center;
+    }
+
+    .result-message {
+      font-size: 1.15rem;
+      font-weight: bold;
+      margin-top: 10px;
+      color: var(--primary-dark);
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      color: #6d5c4d;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 700px) {
+      .exercise {
+        grid-template-columns: 30px 1fr;
+      }
+
+      .feedback {
+        display: block;
+        margin-left: 0;
+        margin-top: 6px;
+      }
+
+      input.answer {
+        width: 62px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Adjektivdeklination im Sportkontext</h1>
+    <p>Nominativ, Akkusativ und Dativ – mit sofortigem Feedback</p>
+  </header>
+
+  <main>
+    <section class="intro">
+      <p><strong>Aufgabe:</strong> Ergänze die richtige Adjektivendung. Schreibe nur die Endung, zum Beispiel: <strong>-e</strong>, <strong>-en</strong>, <strong>-er</strong> oder <strong>-es</strong>.</p>
+      <p class="hint">Tipp: Du kannst auch ohne Bindestrich schreiben, also „e“ statt „-e“.</p>
+    </section>
+
+    <section class="score-box">
+      <div class="score">Punkte: <span id="score">0</span> / <span id="total">0</span></div>
+      <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      <div id="percent">0%</div>
+    </section>
+
+    <section class="section">
+      <h2>Teil A – Nominativ und Akkusativ</h2>
+      <div id="partA"></div>
+    </section>
+
+    <section class="section">
+      <h2>Teil B – Dativ</h2>
+      <div id="partB"></div>
+    </section>
+
+    <section class="actions">
+      <button onclick="checkAll()">Alles prüfen</button>
+      <button class="secondary" onclick="showSolutions()">Lösungen anzeigen</button>
+      <button class="secondary" onclick="resetAll()">Zurücksetzen</button>
+      <div class="result-message" id="resultMessage"></div>
+    </section>
+  </main>
+
+  <footer>
+    Erstellt für den Deutschunterricht – interaktive HTML-Übung
+  </footer>
+
+  <script>
+    const exercisesA = [
+      ["Die schnell", " Läuferin gewinnt das Rennen.", "-e"],
+      ["Wir sehen einen stark", " Athleten beim Kugelstoßen.", "-en"],
+      ["Der motiviert", " Trainer erklärt die Regeln.", "-e"],
+      ["Die begeistert", " Zuschauer applaudieren laut.", "-en"],
+      ["Ich kaufe ein kalt", " Getränk im Stadion.", "-es"],
+      ["Die sportlich", " Schülerinnen trainieren jeden Nachmittag.", "-en"],
+      ["Der nervös", " Schüler wartet auf den Start.", "-e"],
+      ["Wir hören eine fantastisch", " Schulband.", "-e"],
+      ["Die international", " Gäste machen viele Fotos.", "-en"],
+      ["Ich fotografiere den glücklich", " Sieger.", "-en"],
+      ["Die kreativ", " Fans malen bunt", " Plakate.", ["-en", "-e"]],
+      ["Unsere Schule organisiert ein groß", " Sportfest.", "-es"],
+      ["Der schnell", " Sprinter trainiert sehr intensiv.", "-e"],
+      ["Wir essen lecker", " Sandwiches nach dem Wettkampf.", "-e"],
+      ["Die stolz", " Eltern feiern den Sieg ihrer Kinder.", "-en"],
+      ["Ich sehe eine talentiert", " Hochspringerin.", "-e"],
+      ["Der sympathisch", " Moderator begrüßt die Zuschauer.", "-e"],
+      ["Die jung", " Sportlerin gewinnt eine Goldmedaille.", "-e"],
+      ["Wir besuchen ein spannend", " Leichtathletikturnier.", "-es"],
+      ["Die laut", " Musik motiviert die Athleten.", "-e"]
+    ];
+
+    const exercisesB = [
+      ["Der Trainer spricht mit dem motiviert", " Athleten.", "-en"],
+      ["Die Schülerin hilft einer verletzt", " Läuferin.", "-en"],
+      ["Wir gratulieren den erfolgreich", " Sportlern.", "-en"],
+      ["Der Direktor spricht mit der international", " Delegation.", "-en"],
+      ["Die Fans applaudieren dem schnell", " Sprinter.", "-en"],
+      ["Ich schreibe einer talentiert", " Sportlerin eine Nachricht.", "-en"],
+      ["Die Lehrerin hilft den nervös", " Schülerinnen vor dem Wettkampf.", "-en"],
+      ["Wir danken dem freundlich", " Moderator für die Organisation.", "-en"],
+      ["Die Medaille gehört der jung", " Siegerin.", "-en"],
+      ["Der Trainer arbeitet mit einer stark", " Mannschaft.", "-en"],
+      ["Die Zuschauer folgen dem spannend", " Rennen.", "-en"],
+      ["Die Schülerinnen sprechen mit den deutsch", " Gästen.", "-en"],
+      ["Der Pokal gehört dem erfolgreich", " Team.", "-en"],
+      ["Wir helfen einer erschöpft", " Läuferin nach dem Rennen.", "-en"],
+      ["Die Musik gefällt den begeistert", " Zuschauern.", "-en"]
+    ];
+
+    function normalize(value) {
+      return value.trim().toLowerCase().replace(/^[-–—]/, "");
+    }
+
+    function solutionText(solution) {
+      if (Array.isArray(solution)) {
+        return solution.join(" / ");
+      }
+      return solution;
+    }
+
+    function createExercise(item, index, containerId, prefix) {
+      const div = document.createElement("div");
+      div.className = "exercise";
+
+      const number = document.createElement("div");
+      number.className = "number";
+      number.textContent = index + 1 + ".";
+
+      const sentence = document.createElement("div");
+      sentence.className = "sentence";
+
+      if (Array.isArray(item[3])) {
+        sentence.innerHTML = `${item[0]}<input class="answer" data-solution="${item[3][0]}" id="${prefix}${index}_1" oninput="checkOne(this)"> ${item[1]}<input class="answer" data-solution="${item[3][1]}" id="${prefix}${index}_2" oninput="checkOne(this)"> ${item[2]} <span class="feedback" id="fb_${prefix}${index}"></span>`;
+      } else {
+        sentence.innerHTML = `${item[0]}<input class="answer" data-solution="${item[2]}" id="${prefix}${index}" oninput="checkOne(this)"> ${item[1]} <span class="feedback" id="fb_${prefix}${index}"></span>`;
+      }
+
+      div.appendChild(number);
+      div.appendChild(sentence);
+      document.getElementById(containerId).appendChild(div);
+    }
+
+    function renderExercises() {
+      exercisesA.forEach((item, index) => createExercise(item, index, "partA", "a"));
+      exercisesB.forEach((item, index) => createExercise(item, index, "partB", "b"));
+      document.getElementById("total").textContent = document.querySelectorAll("input.answer").length;
+      updateScore();
+    }
+
+    function checkOne(input) {
+      const user = normalize(input.value);
+      const solution = normalize(input.dataset.solution);
+
+      if (user === "") {
+        input.classList.remove("correct", "incorrect");
+        updateFeedbackNear(input);
+        updateScore();
+        return;
+      }
+
+      if (user === solution) {
+        input.classList.add("correct");
+        input.classList.remove("incorrect");
+      } else {
+        input.classList.add("incorrect");
+        input.classList.remove("correct");
+      }
+
+      updateFeedbackNear(input);
+      updateScore();
+    }
+
+    function updateFeedbackNear(input) {
+      const exercise = input.closest(".exercise");
+      const inputs = exercise.querySelectorAll("input.answer");
+      const feedback = exercise.querySelector(".feedback");
+      let filled = 0;
+      let correct = 0;
+
+      inputs.forEach(i => {
+        if (normalize(i.value) !== "") filled++;
+        if (normalize(i.value) === normalize(i.dataset.solution)) correct++;
+      });
+
+      if (filled === 0) {
+        feedback.textContent = "";
+        feedback.className = "feedback";
+      } else if (correct === inputs.length) {
+        feedback.textContent = "✓ Richtig!";
+        feedback.className = "feedback ok";
+      } else {
+        feedback.textContent = "✗ Noch einmal versuchen.";
+        feedback.className = "feedback bad";
+      }
+    }
+
+    function updateScore() {
+      const inputs = document.querySelectorAll("input.answer");
+      let correct = 0;
+
+      inputs.forEach(input => {
+        if (normalize(input.value) === normalize(input.dataset.solution)) {
+          correct++;
+        }
+      });
+
+      const total = inputs.length;
+      const percent = total ? Math.round((correct / total) * 100) : 0;
+
+      document.getElementById("score").textContent = correct;
+      document.getElementById("percent").textContent = percent + "%";
+      document.getElementById("progressBar").style.width = percent + "%";
+
+      const msg = document.getElementById("resultMessage");
+      if (percent === 100) {
+        msg.textContent = "Ausgezeichnet! Alle Antworten sind richtig.";
+      } else if (percent >= 70) {
+        msg.textContent = "Sehr gut! Einige Endungen kannst du noch verbessern.";
+      } else if (percent > 0) {
+        msg.textContent = "Weiter üben – achte besonders auf Artikel und Kasus.";
+      } else {
+        msg.textContent = "";
+      }
+    }
+
+    function checkAll() {
+      document.querySelectorAll("input.answer").forEach(input => checkOne(input));
+    }
+
+    function showSolutions() {
+      document.querySelectorAll("input.answer").forEach(input => {
+        input.value = input.dataset.solution;
+        checkOne(input);
+      });
+    }
+
+    function resetAll() {
+      document.querySelectorAll("input.answer").forEach(input => {
+        input.value = "";
+        input.classList.remove("correct", "incorrect");
+      });
+      document.querySelectorAll(".feedback").forEach(fb => {
+        fb.textContent = "";
+        fb.className = "feedback";
+      });
+      document.getElementById("resultMessage").textContent = "";
+      updateScore();
+    }
+
+    renderExercises();
+  </script>
+</body>
+</html>
