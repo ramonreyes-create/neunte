@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mein gesunder Alltag – Adjektivendungen</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;background:#f5f7fb;color:#1f2937;line-height:1.7}.topbar{background:white;border-bottom:1px solid #e5e7eb;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.04)}.brand{font-weight:900;color:#58cc02}.userbox{font-weight:900;background:#f3f4f6;border-radius:999px;padding:8px 12px}header{background:linear-gradient(135deg,#58cc02,#1cb0f6);color:white;text-align:center;padding:55px 20px}header h1{font-size:2.7rem;margin-bottom:10px}.container{max-width:1050px;margin:auto;padding:30px 20px}.card,.login{background:white;border-radius:24px;padding:26px;margin-bottom:24px;box-shadow:0 10px 25px rgba(0,0,0,.08)}.login{max-width:520px;margin:45px auto;text-align:center}.login p{margin:12px 0;color:#555}h2{margin-bottom:14px;color:#111827}.instruction{background:#eef2ff;color:#3730a3;border-left:7px solid #1cb0f6;border-radius:18px;padding:18px;margin-bottom:20px;font-weight:800}.textbox{font-size:1.08rem}.line{margin:14px 0}.blank{display:inline-flex;align-items:center;gap:5px;margin:0 2px}input.answer{width:58px;padding:8px 6px;border:2px solid #d1d5db;border-radius:12px;font-size:1rem;text-align:center;font-weight:900}input.answer.ok{border-color:#22c55e;background:#dcfce7;color:#166534}input.answer.bad{border-color:#ef4444;background:#fee2e2;color:#991b1b}.mark{font-weight:900;min-width:22px;display:inline-block}button{background:#58cc02;color:white;border:none;border-radius:16px;padding:13px 20px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #46a302;margin:8px 8px 8px 0}.blue{background:#1cb0f6;box-shadow:0 5px 0 #1689c7}.red{background:#dc2626;box-shadow:0 5px 0 #991b1b}.stats{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}.stat{background:#f3f4f6;border-radius:999px;padding:10px 14px;font-weight:900}.progress{height:18px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:15px 0}.bar{height:100%;width:0%;background:#58cc02;transition:.3s}.feedback{display:none;margin-top:12px;padding:14px;border-radius:16px;font-weight:900}.correct{display:block;background:#dcfce7;color:#166534}.wrong{display:block;background:#fee2e2;color:#991b1b}.solution{display:none;background:#f3f4f6;border-radius:18px;padding:18px;margin-top:18px}.small{font-size:.92rem;color:#555;line-height:1.45}@media(max-width:700px){header h1{font-size:2rem}.topbar{display:block;text-align:center}.userbox{display:inline-block;margin-top:8px}}</style>
+</head>
+<body>
+<div class="topbar"><div class="brand">🥗 Mein gesunder Alltag</div><div class="userbox">👩‍🎓 <span id="userTop">Gast</span></div></div>
+<section id="loginBox" class="login">
+<h2>👩‍🎓 Anmeldung</h2><p>Schreibe deinen Namen, um die Übung zu starten.</p>
+<input id="studentName" style="width:100%;padding:14px;border:2px solid #d1d5db;border-radius:14px;font-size:1rem" placeholder="Dein Name"><br>
+<button onclick="login()">Starten</button>
+</section>
+<div id="app" style="display:none">
+<header><h1>Mein gesunder Alltag</h1><p>Adjektivendungen ergänzen – sofortige Rückmeldung</p></header>
+<main class="container">
+<section class="card">
+<h2>Aufgabe</h2>
+<div class="instruction">Ergänze die richtigen Adjektivendungen. Nach jeder Antwort bekommst du sofort eine Rückmeldung.</div>
+<div class="stats"><div class="stat">✅ Richtig: <span id="correctCount">0</span></div><div class="stat">📝 Aufgaben: <span id="doneCount">0</span> / 28</div><div class="stat">📊 Punkte: <span id="percent">0</span>%</div></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+</section>
+<section class="card">
+<h2>Text</h2>
+<div class="textbox"><p class="line"><strong>Normalerweise stehe ich um sieben Uhr auf und frühstücke mit meiner Familie.</strong></p><div id="exerciseText"></div></div>
+<button class="blue" onclick="checkAll()">Alles prüfen</button><button onclick="showSolutions()">Lösungen anzeigen</button><button class="red" onclick="resetAll()">Zurücksetzen</button>
+<div id="finalFeedback" class="feedback"></div>
+<div id="solutions" class="solution"><h2>Lösungen</h2><div id="solutionList"></div></div>
+</section>
+</main>
+</div>
+<script>
+const ITEMS = [{"before": "Zum Frühstück esse ich meistens Brot mit Käse, Obst und trinke einen heiß", "answer": "en", "after": " Tee."}, {"before": "Meine Schwester bevorzugt einen gesund", "answer": "en", "after": " Joghurt mit frisch"}, {"before": "", "answer": "en", "after": " Früchten."}, {"before": "In der Schule kaufen viele Schüler schnell", "answer": "e", "after": " Snacks oder süß"}, {"before": "", "answer": "e", "after": " Getränke."}, {"before": "Ich versuche aber, gesund zu essen, indem ich viel Wasser trinke und frisch", "answer": "es", "after": " Gemüse esse."}, {"before": "Zum Mittagessen esse ich oft eine warm", "answer": "e", "after": " Suppe oder einen lecker"}, {"before": "", "answer": "en", "after": " Salat mit Hähnchen."}, {"before": "Meine Mutter kocht sehr gut und bereitet jeden Tag ein ausgewogen", "answer": "es", "after": " Essen zu."}, {"before": "Mein Vater arbeitet in einem Restaurant und kennt viele international", "answer": "e", "after": " Gerichte."}, {"before": "Er sagt immer, dass gesund", "answer": "e", "after": " Ernährung sehr wichtig ist."}, {"before": "Am Nachmittag habe ich manchmal Hunger und esse einen klein", "answer": "en", "after": " Apfel oder einige frisch"}, {"before": "", "answer": "e", "after": " Nüsse."}, {"before": "Meine Freunde essen lieber fettig", "answer": "e", "after": " Pommes oder süß"}, {"before": "", "answer": "e", "after": " Schokolade."}, {"before": "Ich esse lieber zu Hause als im Restaurant, weil meine Familie gesund", "answer": "e", "after": " Lebensmittel kauft und frisch"}, {"before": "", "answer": "e", "after": " Gerichte kocht."}, {"before": "Außerdem ist das Essen zu Hause meistens billiger und gemütlich", "answer": "", "after": "."}, {"before": "Mein Lieblingsessen ist gegrillt", "answer": "er", "after": " Fisch mit Reis und bunt"}, {"before": "", "answer": "em", "after": " Gemüse, denn dieses Essen ist leicht und gesund."}, {"before": "Es ist auch wichtig, dass man genug schläft und wenig ungesund", "answer": "es", "after": " Fast Food isst."}, {"before": "Viele Menschen vergessen, wie wichtig körperlich", "answer": "e", "after": " Aktivität und gesund"}, {"before": "", "answer": "e", "after": " Ernährung sind."}, {"before": "Meine Großmutter gibt mir oft gut", "answer": "e", "after": " Tipps für ein gesundes Leben."}, {"before": "Sie empfiehlt täglich frisch", "answer": "es", "after": " Obst und natürlich"}, {"before": "", "answer": "e", "after": " Säfte."}, {"before": "In meiner Familie achten alle auf gesund", "answer": "e", "after": " Gewohnheiten."}, {"before": "Deshalb fühlen wir uns meistens fit und energisch", "answer": "", "after": "."}];
+let student = "";
+let answered = new Array(ITEMS.length).fill(false);
+let correct = new Array(ITEMS.length).fill(false);
+function login(){
+let name = document.getElementById("studentName").value.trim();
+if(name === ""){alert("Bitte schreibe deinen Namen.");return;}
+student = name;
+localStorage.setItem("gesunder_alltag_user", student);
+document.getElementById("userTop").innerText = student;
+document.getElementById("loginBox").style.display = "none";
+document.getElementById("app").style.display = "block";
+renderText();
+updateStats();
+}
+function normalize(text){
+return String(text).trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+}
+function renderText(){
+let box = document.getElementById("exerciseText");
+box.innerHTML = "";
+ITEMS.forEach((item,index) => {
+let span = document.createElement("span");
+let inputHtml = '<span class="blank"><input class="answer" id="a'+index+'" maxlength="4" oninput="checkOne('+index+')" placeholder="..."><span class="mark" id="m'+index+'"></span></span>';
+span.innerHTML = item.before + inputHtml + item.after + " ";
+box.appendChild(span);
+if([2,5,8,10,14,17,19,22,25,27].includes(index)){box.appendChild(document.createElement("p"));}
+});
+}
+function checkOne(index){
+let input = document.getElementById("a"+index);
+let mark = document.getElementById("m"+index);
+let user = normalize(input.value);
+let ans = normalize(ITEMS[index].answer);
+if(user === "" && ans !== ""){
+input.className = "answer"; mark.innerText = ""; answered[index] = false; correct[index] = false; updateStats(); return;
+}
+answered[index] = true;
+if(user === ans){input.className = "answer ok"; mark.innerText = "✅"; correct[index] = true;}
+else{input.className = "answer bad"; mark.innerText = "❌"; correct[index] = false;}
+updateStats();
+}
+function updateStats(){
+let correctCount = correct.filter(Boolean).length;
+let doneCount = answered.filter(Boolean).length;
+let percent = Math.round((correctCount / ITEMS.length) * 100);
+document.getElementById("correctCount").innerText = correctCount;
+document.getElementById("doneCount").innerText = doneCount;
+document.getElementById("percent").innerText = percent;
+document.getElementById("bar").style.width = percent + "%";
+localStorage.setItem("gesunder_alltag_result_"+normalize(student), JSON.stringify({student:student,correct:correctCount,done:doneCount,total:ITEMS.length,percent:percent,date:new Date().toLocaleString()}));
+}
+function checkAll(){
+ITEMS.forEach((item,index) => checkOne(index));
+let correctCount = correct.filter(Boolean).length;
+let fb = document.getElementById("finalFeedback");
+if(correctCount === ITEMS.length){fb.className = "feedback correct"; fb.innerText = "🎉 Sehr gut! Alles richtig.";}
+else{fb.className = "feedback wrong"; fb.innerText = "Du hast " + correctCount + " von " + ITEMS.length + " richtig. Kontrolliere die roten Felder.";}
+}
+function showSolutions(){
+let sol = document.getElementById("solutions");
+sol.style.display = sol.style.display === "block" ? "none" : "block";
+}
+function renderSolutions(){
+let list = document.getElementById("solutionList");
+list.innerHTML = "";
+ITEMS.forEach((item,index) => {
+let ans = item.answer === "" ? "(keine Endung)" : item.answer;
+list.innerHTML += "<p><strong>" + (index+1) + ".</strong> " + ans + "</p>";
+});
+}
+function resetAll(){
+answered = new Array(ITEMS.length).fill(false);
+correct = new Array(ITEMS.length).fill(false);
+ITEMS.forEach((item,index) => {
+document.getElementById("a"+index).value = "";
+document.getElementById("a"+index).className = "answer";
+document.getElementById("m"+index).innerText = "";
+});
+document.getElementById("finalFeedback").className = "feedback";
+document.getElementById("finalFeedback").innerText = "";
+updateStats();
+}
+window.onload = function(){
+let saved = localStorage.getItem("gesunder_alltag_user");
+if(saved){student = saved; document.getElementById("studentName").value = saved;}
+renderSolutions();
+};
+</script>
+</body>
+</html>
