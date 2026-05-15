@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Satzbau – Mein gesunder Alltag</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:#f5f7fb;color:#1f2937}
+header{background:linear-gradient(135deg,#58cc02,#1cb0f6);color:white;text-align:center;padding:55px 20px}
+header h1{font-size:2.5rem;margin-bottom:10px}
+.container{max-width:1100px;margin:auto;padding:30px 20px}
+.card,.login{background:white;border-radius:24px;padding:26px;box-shadow:0 10px 25px rgba(0,0,0,.08);margin-bottom:24px}
+.login{max-width:520px;margin:40px auto;text-align:center}
+input,textarea{width:100%;padding:14px;border:2px solid #d1d5db;border-radius:14px;font-size:1rem}
+textarea{min-height:80px;resize:vertical}
+button{background:#58cc02;color:white;border:none;border-radius:16px;padding:13px 20px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #46a302;margin-top:12px}
+.task{border-top:2px solid #e5e7eb;padding-top:20px;margin-top:20px}
+.words{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.word{background:#eef2ff;color:#3730a3;padding:10px 14px;border-radius:999px;font-weight:900}.hint{background:#dcfce7;color:#166534;padding:10px 14px;border-radius:14px;font-weight:900;display:inline-block;margin:10px 0}
+.feedback{display:none;margin-top:10px;padding:12px;border-radius:14px;font-weight:900}
+.correct{display:block;background:#dcfce7;color:#166534}
+.wrong{display:block;background:#fee2e2;color:#991b1b}
+.progress{height:18px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:15px 0}
+.bar{height:100%;width:0%;background:#58cc02;transition:.3s}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:15px}
+.stat{background:#f3f4f6;border-radius:999px;padding:10px 14px;font-weight:900}
+</style>
+</head>
+<body>
+
+<section id="loginBox" class="login">
+<h2>👩‍🎓 Anmeldung</h2>
+<p style="margin:12px 0;color:#555">Schreibe deinen Namen, um die Übung zu starten.</p>
+<input id="studentName" placeholder="Dein Name">
+<button id="startBtn">Starten</button>
+</section>
+
+<div id="app" style="display:none">
+<header>
+<h1>Satzbau – Mein gesunder Alltag</h1>
+<p>Ordne die Wörter und schreibe den Satz richtig.</p>
+</header>
+
+<main class="container">
+
+<section class="card">
+<h2>Aufgabe</h2>
+<p>Schreibe die Sätze korrekt. Du bekommst sofort Rückmeldung.</p>
+
+<div class="stats">
+<div class="stat">👩‍🎓 <span id="studentTop"></span></div>
+<div class="stat">✅ Punkte: <span id="score">0</span> / 10</div>
+</div>
+
+<div class="progress"><div class="bar" id="bar"></div></div>
+</section>
+
+<section class="card" id="taskBox"></section>
+
+</main>
+</div>
+
+<script>
+const TASKS = [
+{words:["ich","esse","zum Frühstück","gesundes Brot"],answer:"Ich esse zum Frühstück gesundes Brot."},
+{words:["meine Mutter","kocht","jeden Tag","frische Suppe"],answer:"Meine Mutter kocht jeden Tag frische Suppe."},
+{words:["weil","ich","gesund leben möchte","trinke","ich","viel Wasser"],answer:"Weil ich gesund leben möchte, trinke ich viel Wasser."},
+{words:["obwohl","mein Bruder","müde ist","macht","er","Sport"],answer:"Obwohl mein Bruder müde ist, macht er Sport."},
+{words:["seit","ich","regelmäßig trainiere","fühle","ich mich","fit"],answer:"Seit ich regelmäßig trainiere, fühle ich mich fit."},
+{words:["bis","der Unterricht","beginnt","bleiben","wir","im Klassenzimmer"],answer:"Bis der Unterricht beginnt, bleiben wir im Klassenzimmer."},
+{words:["am Nachmittag","esse","ich","einen kleinen Apfel"],answer:"Am Nachmittag esse ich einen kleinen Apfel."},
+{words:["meine Freunde","essen","lieber","fettige Pommes"],answer:"Meine Freunde essen lieber fettige Pommes."},
+{words:["weil","gesunde Ernährung","wichtig ist","achtet","meine Familie","auf frische Produkte"],answer:"Weil gesunde Ernährung wichtig ist, achtet meine Familie auf frische Produkte."},
+{words:["am Wochenende","fahre","ich","oft Fahrrad"],answer:"Am Wochenende fahre ich oft Fahrrad."}
+];
+
+function normalize(t){
+return String(t).toLowerCase().trim()
+.normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+.replace(/[.!?]/g,"");
+}
+
+document.getElementById("startBtn").addEventListener("click", startApp);
+
+function startApp(){
+const student = document.getElementById("studentName").value.trim();
+
+if(student === ""){
+alert("Bitte schreibe deinen Namen.");
+return;
+}
+
+document.getElementById("studentTop").innerText = student;
+document.getElementById("loginBox").style.display = "none";
+document.getElementById("app").style.display = "block";
+
+renderTasks();
+}
+
+function renderTasks(){
+const box = document.getElementById("taskBox");
+box.innerHTML = "";
+
+TASKS.forEach((task,index)=>{
+const words = [...task.words].sort(()=>Math.random()-0.5);
+
+const div = document.createElement("div");
+div.className = "task";
+
+div.innerHTML = `
+<h3>Aufgabe ${index+1}</h3>
+
+<div class="hint">💡 Erste Wort: <strong>${task.answer.split(" ")[0]}</strong></div>
+
+<div class="words">
+${words.map(w=>`<span class="word">${w}</span>`).join("")}
+</div>
+
+<textarea id="a${index}" placeholder="Schreibe den Satz richtig..."></textarea>
+
+<div id="fb${index}" class="feedback"></div>
+`;
+
+box.appendChild(div);
+
+document.getElementById("a"+index).addEventListener("input", function(){
+checkAnswer(index);
+});
+});
+}
+
+function checkAnswer(index){
+const input = document.getElementById("a"+index);
+const fb = document.getElementById("fb"+index);
+
+if(normalize(input.value) === normalize(TASKS[index].answer)){
+fb.className = "feedback correct";
+fb.innerText = "✅ Richtig!";
+}else{
+fb.className = "feedback wrong";
+fb.innerText = "❌ Noch nicht korrekt.";
+}
+
+updateScore();
+}
+
+function updateScore(){
+let score = 0;
+
+TASKS.forEach((task,index)=>{
+const el = document.getElementById("a"+index);
+if(el && normalize(el.value) === normalize(task.answer)){
+score++;
+}
+});
+
+document.getElementById("score").innerText = score;
+document.getElementById("bar").style.width = Math.round((score/TASKS.length)*100) + "%";
+}
+</script>
+
+</body>
+</html>
