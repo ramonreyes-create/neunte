@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcards – Adjektive B1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:#f5f7fb;color:#1f2937}
+header{background:linear-gradient(135deg,#7c3aed,#1cb0f6);color:white;text-align:center;padding:55px 20px}
+header h1{font-size:2.8rem;margin-bottom:10px}
+.container{max-width:1200px;margin:auto;padding:30px 20px}
+.controls{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:25px}
+button{background:#7c3aed;color:white;border:none;border-radius:16px;padding:14px 22px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #5b21b6}
+button:hover{background:#6d28d9}
+.green{background:#58cc02;box-shadow:0 5px 0 #46a302}
+.blue{background:#1cb0f6;box-shadow:0 5px 0 #1689c7}
+.red{background:#dc2626;box-shadow:0 5px 0 #991b1b}
+.stats{display:flex;justify-content:center;gap:15px;flex-wrap:wrap;margin-bottom:25px}
+.stat{background:white;padding:12px 18px;border-radius:999px;font-weight:900;box-shadow:0 5px 15px rgba(0,0,0,.08)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:22px}
+.card{height:170px;perspective:1000px;cursor:pointer}
+.inner{position:relative;width:100%;height:100%;transition:transform .7s;transform-style:preserve-3d}
+.card.flipped .inner{transform:rotateY(180deg)}
+.front,.back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:24px;display:flex;align-items:center;justify-content:center;padding:18px;text-align:center;font-weight:900;font-size:1.5rem;box-shadow:0 10px 25px rgba(0,0,0,.08)}
+.front{background:white}
+.back{background:#7c3aed;color:white;transform:rotateY(180deg)}
+.learned{outline:6px solid #58cc02}
+.hidden{display:none}
+.quizBox{background:white;border-radius:24px;padding:28px;box-shadow:0 10px 25px rgba(0,0,0,.08);max-width:700px;margin:30px auto}
+.question{font-size:2rem;font-weight:900;text-align:center;margin-bottom:22px}
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.option{background:#eef2ff;color:#111;box-shadow:none}
+.option:hover{background:#ddd6fe}
+.feedback{margin-top:18px;padding:14px;border-radius:16px;font-weight:900;text-align:center;display:none}
+.correct{background:#dcfce7;color:#166534;display:block}
+.wrong{background:#fee2e2;color:#991b1b;display:block}
+@media(max-width:700px){header h1{font-size:2rem}.front,.back{font-size:1.2rem}}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🃏 Flashcards – Adjektive B1</h1>
+<p>Lerne Adjektive interaktiv mit Karteikarten und Mini-Quiz.</p>
+</header>
+
+<main class="container">
+
+<div class="controls">
+<button onclick="flipAll()">🔄 Alle umdrehen</button>
+<button class="green" onclick="shuffleCards()">🎲 Mischen</button>
+<button class="blue" onclick="startQuiz()">🧠 Quiz starten</button>
+<button class="red" onclick="resetLearned()">♻️ Zurücksetzen</button>
+</div>
+
+<div class="stats">
+<div class="stat">📚 Karten: <span id="totalCards"></span></div>
+<div class="stat">✅ Gelernt: <span id="learnedCount">0</span></div>
+</div>
+
+<section id="cardsGrid" class="grid"></section>
+
+<section id="quizSection" class="quizBox hidden">
+<h2 style="text-align:center;margin-bottom:20px;">🧠 Mini-Quiz</h2>
+<div class="question" id="quizQuestion"></div>
+<div class="options" id="quizOptions"></div>
+<div id="feedback" class="feedback"></div>
+<button style="margin-top:20px;width:100%;" onclick="nextQuiz()">Nächste Frage</button>
+</section>
+
+</main>
+
+<script>
+const CARDS = [["freundlich", "amable"], ["lustig", "divertido"], ["sportlich", "deportivo"], ["intelligent", "inteligente"], ["kreativ", "creativo"], ["ruhig", "tranquilo"], ["laut", "ruidoso"], ["hilfsbereit", "servicial"], ["geduldig", "paciente"], ["ehrlich", "honesto"], ["modern", "moderno"], ["altmodisch", "anticuado"], ["elegant", "elegante"], ["lässig", "informal"], ["streng", "estricto"], ["nett", "simpático"], ["sympathisch", "agradable"], ["aktiv", "activo"], ["fleißig", "aplicado"], ["faul", "flojo"], ["offen", "abierto"], ["schüchtern", "tímido"], ["neugierig", "curioso"], ["verantwortlich", "responsable"], ["humorvoll", "con sentido del humor"], ["unfreundlich", "antipático"], ["selbstständig", "independiente"], ["zuverlässig", "confiable"], ["mutig", "valiente"], ["vorsichtig", "cuidadoso"]];
+let learned = JSON.parse(localStorage.getItem("adjektive_flashcards_learned") || "[]");
+let quizAnswer = "";
+let quizPool = [];
+let currentQuiz = 0;
+
+function saveLearned(){
+localStorage.setItem("adjektive_flashcards_learned", JSON.stringify(learned));
+updateStats();
+}
+
+function updateStats(){
+document.getElementById("learnedCount").innerText = learned.length;
+document.getElementById("totalCards").innerText = CARDS.length;
+}
+
+function renderCards(data = CARDS){
+const grid = document.getElementById("cardsGrid");
+grid.innerHTML = "";
+
+data.forEach((card, index) => {
+const div = document.createElement("div");
+div.className = "card" + (learned.includes(card[0]) ? " learned" : "");
+div.onclick = function(){
+div.classList.toggle("flipped");
+
+if(!learned.includes(card[0])){
+learned.push(card[0]);
+saveLearned();
+div.classList.add("learned");
+}
+};
+
+div.innerHTML = `
+<div class="inner">
+<div class="front">${card[0]}</div>
+<div class="back">${card[1]}</div>
+</div>
+`;
+
+grid.appendChild(div);
+});
+}
+
+function flipAll(){
+document.querySelectorAll(".card").forEach(card => {
+card.classList.toggle("flipped");
+});
+}
+
+function shuffle(array){
+return [...array].sort(() => Math.random() - 0.5);
+}
+
+function shuffleCards(){
+renderCards(shuffle(CARDS));
+}
+
+function resetLearned(){
+if(confirm("Möchtest du alles zurücksetzen?")){
+learned = [];
+saveLearned();
+renderCards();
+}
+}
+
+function startQuiz(){
+document.getElementById("quizSection").classList.remove("hidden");
+quizPool = shuffle(CARDS).slice(0,10);
+currentQuiz = 0;
+loadQuiz();
+window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+
+function loadQuiz(){
+if(currentQuiz >= quizPool.length){
+document.getElementById("quizQuestion").innerHTML = "🎉 Quiz beendet!";
+document.getElementById("quizOptions").innerHTML = "";
+document.getElementById("feedback").className = "feedback correct";
+document.getElementById("feedback").innerText = "Super gemacht!";
+return;
+}
+
+let item = quizPool[currentQuiz];
+quizAnswer = item[1];
+
+document.getElementById("feedback").className = "feedback";
+document.getElementById("feedback").innerText = "";
+
+document.getElementById("quizQuestion").innerText = item[0];
+
+let pool = CARDS.map(x => x[1]).filter(x => x !== quizAnswer);
+pool = shuffle(pool).slice(0,3);
+pool.push(quizAnswer);
+pool = shuffle(pool);
+
+let html = "";
+pool.forEach(opt => {
+html += `<button class="option" onclick="checkQuiz('${opt.replace(/'/g,"\\'")}')">${opt}</button>`;
+});
+
+document.getElementById("quizOptions").innerHTML = html;
+}
+
+function checkQuiz(selected){
+let feedback = document.getElementById("feedback");
+
+if(selected === quizAnswer){
+feedback.className = "feedback correct";
+feedback.innerText = "✅ Richtig!";
+} else {
+feedback.className = "feedback wrong";
+feedback.innerHTML = "❌ Falsch. Richtige Antwort: <strong>" + quizAnswer + "</strong>";
+}
+}
+
+function nextQuiz(){
+currentQuiz++;
+loadQuiz();
+}
+
+renderCards();
+updateStats();
+</script>
+
+</body>
+</html>
