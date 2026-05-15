@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory – Adjektive B1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:#f5f7fb;color:#1f2937}
+header{background:linear-gradient(135deg,#7c3aed,#1cb0f6);color:white;text-align:center;padding:55px 20px}
+header h1{font-size:2.7rem;margin-bottom:10px}
+.container{max-width:1200px;margin:auto;padding:30px 20px}
+.controls{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:22px}
+button{background:#7c3aed;color:white;border:none;border-radius:16px;padding:14px 22px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #5b21b6}
+button:hover{background:#6d28d9}
+.green{background:#58cc02;box-shadow:0 5px 0 #46a302}
+.red{background:#dc2626;box-shadow:0 5px 0 #991b1b}
+.stats{display:flex;justify-content:center;gap:15px;flex-wrap:wrap;margin-bottom:25px}
+.stat{background:white;padding:12px 18px;border-radius:999px;font-weight:900;box-shadow:0 5px 15px rgba(0,0,0,.08)}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:16px}
+.card{height:120px;perspective:1000px;cursor:pointer}
+.inner{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.card.flipped .inner,.card.matched .inner{transform:rotateY(180deg)}
+.front,.back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:20px;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px;font-weight:900;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.front{background:#7c3aed;color:white;font-size:2rem}
+.back{background:white;color:#111827;transform:rotateY(180deg);font-size:1.05rem}
+.card.matched .back{background:#dcfce7;color:#166534;border:3px solid #58cc02}
+.card.wrong .back{background:#fee2e2;color:#991b1b}
+.message{background:white;border-radius:22px;padding:18px;text-align:center;font-weight:900;box-shadow:0 8px 20px rgba(0,0,0,.08);margin-bottom:22px}
+.levelBox{background:white;border-radius:24px;padding:22px;box-shadow:0 8px 20px rgba(0,0,0,.08);margin-bottom:24px;text-align:center}
+select{padding:12px;border-radius:14px;border:2px solid #d1d5db;font-weight:900;margin-left:8px}
+@media(max-width:700px){header h1{font-size:2rem}.card{height:105px}.back{font-size:.9rem}}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🧩 Memory – Adjektive B1</h1>
+<p>Finde die passenden Paare: Deutsch ↔ Spanisch</p>
+</header>
+
+<main class="container">
+
+<div class="levelBox">
+<label><strong>Anzahl der Paare:</strong></label>
+<select id="pairCount">
+<option value="8">8 Paare</option>
+<option value="10" selected>10 Paare</option>
+<option value="12">12 Paare</option>
+<option value="15">15 Paare</option>
+</select>
+<button class="green" onclick="startGame()">Spiel starten</button>
+</div>
+
+<div class="stats">
+<div class="stat">✅ Paare: <span id="matchedCount">0</span></div>
+<div class="stat">🎯 Versuche: <span id="attempts">0</span></div>
+<div class="stat">⏱️ Zeit: <span id="timer">00:00</span></div>
+</div>
+
+<div class="message" id="message">Klicke auf zwei Karten und finde die richtige Übersetzung.</div>
+
+<div class="controls">
+<button onclick="showAll()">👀 Kurz zeigen</button>
+<button class="red" onclick="startGame()">🔄 Neu starten</button>
+</div>
+
+<section class="board" id="board"></section>
+
+</main>
+
+<script>
+const ORIGINAL_CARDS = [["freundlich", "amable"], ["lustig", "divertido"], ["sportlich", "deportivo"], ["intelligent", "inteligente"], ["kreativ", "creativo"], ["ruhig", "tranquilo"], ["laut", "ruidoso"], ["hilfsbereit", "servicial"], ["geduldig", "paciente"], ["ehrlich", "honesto"], ["modern", "moderno"], ["altmodisch", "anticuado"], ["elegant", "elegante"], ["lässig", "informal"], ["streng", "estricto"], ["nett", "simpático"], ["sympathisch", "agradable"], ["aktiv", "activo"], ["fleißig", "aplicado"], ["faul", "flojo"], ["offen", "abierto"], ["schüchtern", "tímido"], ["neugierig", "curioso"], ["verantwortlich", "responsable"], ["humorvoll", "con sentido del humor"], ["unfreundlich", "antipático"], ["selbstständig", "independiente"], ["zuverlässig", "confiable"], ["mutig", "valiente"], ["vorsichtig", "cuidadoso"]];
+
+let gameCards = [];
+let firstCard = null;
+let secondCard = null;
+let lockBoard = false;
+let matchedPairs = 0;
+let attempts = 0;
+let seconds = 0;
+let timerInterval = null;
+
+function shuffle(array){
+return [...array].sort(() => Math.random() - 0.5);
+}
+
+function formatTime(s){
+let m = Math.floor(s/60);
+let sec = s % 60;
+return String(m).padStart(2,"0") + ":" + String(sec).padStart(2,"0");
+}
+
+function startTimer(){
+clearInterval(timerInterval);
+seconds = 0;
+document.getElementById("timer").innerText = "00:00";
+timerInterval = setInterval(() => {
+seconds++;
+document.getElementById("timer").innerText = formatTime(seconds);
+},1000);
+}
+
+function startGame(){
+let count = Number(document.getElementById("pairCount").value);
+let selected = shuffle(ORIGINAL_CARDS).slice(0,count);
+
+gameCards = [];
+selected.forEach((pair, index) => {
+gameCards.push({id:index, text:pair[0], type:"de"});
+gameCards.push({id:index, text:pair[1], type:"es"});
+});
+
+gameCards = shuffle(gameCards);
+firstCard = null;
+secondCard = null;
+lockBoard = false;
+matchedPairs = 0;
+attempts = 0;
+
+document.getElementById("matchedCount").innerText = matchedPairs;
+document.getElementById("attempts").innerText = attempts;
+document.getElementById("message").innerText = "Klicke auf zwei Karten und finde die richtige Übersetzung.";
+
+renderBoard();
+startTimer();
+}
+
+function renderBoard(){
+const board = document.getElementById("board");
+board.innerHTML = "";
+
+gameCards.forEach((card, index) => {
+let div = document.createElement("div");
+div.className = "card";
+div.dataset.id = card.id;
+div.dataset.type = card.type;
+div.dataset.index = index;
+
+div.innerHTML = `
+<div class="inner">
+<div class="front">?</div>
+<div class="back">${card.text}</div>
+</div>
+`;
+
+div.onclick = () => flipCard(div);
+board.appendChild(div);
+});
+}
+
+function flipCard(card){
+if(lockBoard) return;
+if(card.classList.contains("flipped")) return;
+if(card.classList.contains("matched")) return;
+
+card.classList.add("flipped");
+
+if(!firstCard){
+firstCard = card;
+return;
+}
+
+secondCard = card;
+attempts++;
+document.getElementById("attempts").innerText = attempts;
+
+checkMatch();
+}
+
+function checkMatch(){
+let sameId = firstCard.dataset.id === secondCard.dataset.id;
+let differentType = firstCard.dataset.type !== secondCard.dataset.type;
+
+if(sameId && differentType){
+firstCard.classList.add("matched");
+secondCard.classList.add("matched");
+
+matchedPairs++;
+document.getElementById("matchedCount").innerText = matchedPairs;
+document.getElementById("message").innerText = "✅ Richtiges Paar!";
+
+resetTurn();
+
+if(matchedPairs === Number(document.getElementById("pairCount").value)){
+clearInterval(timerInterval);
+document.getElementById("message").innerText = "🎉 Geschafft! Du hast alle Paare gefunden.";
+}
+} else {
+lockBoard = true;
+firstCard.classList.add("wrong");
+secondCard.classList.add("wrong");
+document.getElementById("message").innerText = "❌ Nicht passend. Versuch es noch einmal.";
+
+setTimeout(() => {
+firstCard.classList.remove("flipped","wrong");
+secondCard.classList.remove("flipped","wrong");
+resetTurn();
+},900);
+}
+}
+
+function resetTurn(){
+[firstCard, secondCard] = [null, null];
+lockBoard = false;
+}
+
+function showAll(){
+const cards = document.querySelectorAll(".card:not(.matched)");
+cards.forEach(c => c.classList.add("flipped"));
+setTimeout(() => {
+cards.forEach(c => c.classList.remove("flipped"));
+},1600);
+}
+
+startGame();
+</script>
+
+</body>
+</html>
