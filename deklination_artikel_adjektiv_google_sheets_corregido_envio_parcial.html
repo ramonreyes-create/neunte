@@ -520,59 +520,6 @@ summary{cursor:pointer;font-weight:bold;color:var(--blue)}
 </section>
 
 
-<section>
-  <h2>Google-Sheets-Code für den Lehrer</h2>
-  <p>Kopiere diesen Code in <strong>Erweiterungen → Apps Script</strong> deiner Google-Tabelle. Danach die Web-App-URL im HTML bei <strong>WEBAPP_URL</strong> einfügen.</p>
-  <pre class="codebox">// Google Apps Script
-// 1. Öffne Google Sheets.
-// 2. Erweiterungen → Apps Script.
-// 3. Füge diesen Code ein.
-// 4. Bereitstellen → Neue Bereitstellung → Web-App.
-// 5. Ausführen als: Ich.
-// 6. Zugriff: Jeder.
-// 7. Die Web-App-URL muss im HTML bei WEBAPP_URL stehen.
-
-function doPost(e) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-
-  if (!e || !e.postData || !e.postData.contents) {
-    return ContentService
-      .createTextOutput(JSON.stringify({status: &quot;no postData&quot;}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-
-  const data = JSON.parse(e.postData.contents);
-
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow([
-      &quot;Name&quot;,
-      &quot;Datum&quot;,
-      &quot;Uhrzeit&quot;,
-      &quot;Übungen gemacht&quot;,
-      &quot;Richtig&quot;,
-      &quot;Versuche gesamt&quot;,
-      &quot;Erfolgsquote&quot;,
-      &quot;Details pro Übung&quot;
-    ]);
-  }
-
-  sheet.appendRow([
-    data.name || &quot;&quot;,
-    data.datum || &quot;&quot;,
-    data.uhrzeit || &quot;&quot;,
-    data.uebungenGemacht || 0,
-    data.richtig || 0,
-    data.versucheGesamt || 0,
-    data.erfolgsquote || &quot;&quot;,
-    data.details || &quot;&quot;
-  ]);
-
-  return ContentService
-    .createTextOutput(JSON.stringify({status: &quot;ok&quot;}))
-    .setMimeType(ContentService.MimeType.JSON);
-}</pre>
-</section>
-
 </main>
 
 <script>
